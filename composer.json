@@ -8,6 +8,7 @@
         "php": "^8.0.2",
         "ext-soap": "*",
         "bensampo/laravel-enum": "^3.0",
+        "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^8.40.0",
         "laravel/tinker": "^2.7",
