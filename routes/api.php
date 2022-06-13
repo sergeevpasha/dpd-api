@@ -16,9 +16,3 @@ use App\Http\Controllers\DPDController;
 
 Route::get('cities', [DPDController::class, 'queryCities'])
     ->name('cities.query');
-
-Route::post('calculate', [DPDController::class, 'calculateDeliveryPrice'])
-    ->name('calculate');
-
-Route::get('track', [DPDController::class, 'findByTrackNumber'])
-    ->name('track');
