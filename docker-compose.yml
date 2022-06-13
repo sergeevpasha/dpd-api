@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+    nginx:
+        container_name: "${DOCKER_NAME}_nginx"
+        image: nginx:1.21-alpine
+        tty: true
+        volumes:
+            - ./docker/nginx:/etc/nginx/conf.d:ro
+            - ./:/var/www:ro
+            - ./docker/logs:/var/log/nginx
+        networks:
+            - default-network
+    workspace:
+        container_name: "${DOCKER_NAME}_workspace"
+        build: ./docker/images/workspace
+        image: ${DOCKER_NAME}/workspace
+        tty: true
+        hostname: "${DOCKER_NAME}_workspace"
+        volumes:
+            - ./:/var/www:consistent
+        networks:
+            - default-network
+    php-fpm:
+        container_name: "${DOCKER_NAME}_php-fpm"
+        build: ./docker/images/php-fpm
+        image: ${DOCKER_NAME}/php-fpm
+        hostname: "${DOCKER_NAME}_php-fpm"
+        volumes:
+            - ./:/var/www:consistent
+        networks:
+            - default-network
+    cron:
+        container_name: "${DOCKER_NAME}_cron"
+        build: ./docker/images/cron
+        image: ${DOCKER_NAME}/cron
+        volumes:
+            - ./:/var/www:consistent
+        networks:
+            - default-network
+    pgsql:
+        container_name: "${DOCKER_NAME}_pgsql"
+        image: postgres:14.2-alpine
+        shm_size: 1g
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - ./docker/postgres/init:/docker-entrypoint-initdb.d/:ro
+            - pgdata:/var/lib/postgresql/data:rw
+        networks:
+            - default-network
+networks:
+    default-network:
+        name: "${DOCKER_NAME}-network"
+        driver: bridge
+volumes:
+    pgdata:
+        name: "${DOCKER_NAME}_pgdata"
