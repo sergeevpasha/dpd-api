@@ -30,27 +30,18 @@ class SyncDpd implements ShouldQueue
     public int $tries = 1;
 
     /**
-     * DPD Client
-     *
-     * @var \SergeevPasha\DPD\Libraries\DPDClient
-     */
-    protected DPDClient $DPDClient;
-
-    public function __construct(DPDClient $DPDClient)
-    {
-        $this->DPDClient = $DPDClient;
-    }
-
-    /**
      * Sync Dpd Data
      *
-     * @throws \Throwable
+     * @param \SergeevPasha\DPD\Libraries\DPDClient $DPDClient
+     *
+     * @throws \SoapFault
+     * @throws \Spatie\DataTransferObject\Exceptions\UnknownProperties
      * @return void
      */
-    public function handle(): void
+    public function handle(DPDClient $DPDClient): void
     {
         foreach (Country::cursor() as $country) {
-            $cities = $this->DPDClient->getCountryCities($country->abbreviation);
+            $cities = $DPDClient->getCountryCities($country->abbreviation);
             /** @var \SergeevPasha\DPD\DTO\CityDto $city */
             foreach ($cities as $city) {
                 City::updateOrCreate(
@@ -72,7 +63,7 @@ class SyncDpd implements ShouldQueue
         }
 
         /** @var \SergeevPasha\DPD\DTO\TerminalDto $terminal */
-        foreach ($this->DPDClient->getTerminals() as $terminal) {
+        foreach ($DPDClient->getTerminals() as $terminal) {
             $city = City::where('city_id', '=', $terminal->cityId)->first(['id', 'country_id']);
             if ($city) {
                 Terminal::updateOrCreate(
