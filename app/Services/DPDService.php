@@ -28,8 +28,9 @@ class DPDService
      */
     public function queryCities(array $data): Collection
     {
-        return $this->cityRepository::whereRaw("to_tsvector('russian', name) @@ to_tsquery('russian', ?)")
-            ->setBindings([$data['query'] . ':*'])
+        $query = $data['query'] . ':*';
+        return $this->cityRepository::whereRaw("to_tsvector('russian', name) @@ plainto_tsquery('russian', ?)")
+            ->setBindings([$query])
             ->with('terminals')
             ->get();
     }
