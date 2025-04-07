@@ -28,8 +28,11 @@ class DPDService
      */
     public function queryCities(array $data): Collection
     {
+        $searchTerms = explode(' ', $data['query']);
+        $tsQuery = implode(' & ', array_map(fn($term) => $term . ':*', $searchTerms));
+
         return $this->cityRepository::whereRaw("to_tsvector('russian', name) @@ to_tsquery('russian', ?)")
-            ->setBindings([$data['query'] . ':*'])
+            ->setBindings([$tsQuery])
             ->with('terminals')
             ->get();
     }
